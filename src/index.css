@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 * {
     margin: 0;
     padding: 0;
@@ -168,21 +172,100 @@ body {
 
 .statistics-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 30px;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* allow tighter cards on small screens */
+    gap: 20px;
     max-width: 1200px;
     margin: 0 auto;
+    padding: 0 10px; /* prevent edge overflow on very small viewports */
 }
 
 .stat-card {
-    background: rgba(255, 255, 255, 0.1);
+    display: flex; /* horizontal layout */
+    align-items: center;
+    gap: 16px;
+    background: rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(10px);
-    padding: 30px;
-    border-radius: 15px;
-    text-align: center;
+    padding: 20px 18px; /* slightly reduced padding for better fit on mobile */
+    border-radius: 12px;
+    text-align: left;
     color: white;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    transition: all 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.12);
+    transition: all 0.25s ease;
+}
+
+.stat-icon {
+    font-size: 2.4rem;
+    color: var(--warning-yellow);
+    flex: 0 0 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.stat-number {
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.stat-label {
+    font-size: 0.95rem;
+    opacity: 0.9;
+}
+
+@media (max-width: 480px) {
+  .stat-card {
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .stat-icon {
+    font-size: 2rem;
+    flex-basis: 42px;
+  }
+
+  .stat-number {
+    font-size: 1.4rem;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Stack the stats vertically on small and medium-small screens */
+  .statistics-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px; /* increased gap to avoid overlapping */
+    padding: 0 12px;
+    overflow: visible;
+  }
+
+  .stat-card {
+    padding: 16px;
+    min-width: 0;
+    flex: none;
+    width: 100%;
+    position: relative; /* ensure stacking context */
+    z-index: 1;
+  }
+
+  /* Add extra space between the 3rd and 4th cards specifically */
+  .statistics-grid > .stat-card:nth-last-child(2) {
+    margin-bottom: 24px;
+  }
+
+  .stat-icon {
+    font-size: 2rem;
+    flex-basis: 42px;
+  }
+
+  .stat-number {
+    font-size: 1.6rem;
+  }
 }
 
 .stat-icon {
@@ -660,7 +743,7 @@ body {
 
 @media (max-width: 768px) {
     .statistics-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: 1fr; /* stack vertically on tablets and smaller */
     }
 
     .countdown-grid {

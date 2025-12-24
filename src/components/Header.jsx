@@ -58,7 +58,7 @@ const Header = ({ onEnrollClick }) => {
           animate="visible"
         >
           <motion.h1 className="main-title" variants={itemVariants}>
-            ScienceCare একাডেমিক কোচিং
+            GeniusCare একাডেমিক কোচিং
           </motion.h1>
           <motion.p className="subtitle" variants={itemVariants}>
             SSC ও HSC বিজ্ঞান বিভাগের নির্ভরযোগ্য কোচিং
@@ -102,14 +102,28 @@ const Header = ({ onEnrollClick }) => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1, delay: 0.5 }}
         >
-          <div className="image-placeholder">
+          <div className="image-placeholder w-full max-w-[400px] md:max-w-[460px] lg:max-w-[580px] rounded-lg shadow-lg flex justify-center items-center bg-gray-100 relative overflow-hidden">
             <motion.div
               animate={{ rotate: [0, 10, -10, 0] }}
               transition={{ duration: 3, repeat: Infinity }}
             >
               <FaBookReader className="placeholder-icon" />
             </motion.div>
-            <p>এখানে আপনার প্রতিষ্ঠানের ছবি যোগ করুন</p>
+            <img 
+              src="/images/coaching-image.jpg"
+              alt="GeniusCare coaching"
+              className="header-img w-full max-w-[400px] md:max-w-[460px] lg:max-w-[580px] h-auto rounded-lg shadow-lg object-contain"
+              onLoad={(e) => {
+                const placeholderIcon = e.currentTarget.closest('.image-placeholder').querySelector('.placeholder-icon')
+                if (placeholderIcon) placeholderIcon.style.display = 'none'
+                e.currentTarget.style.display = 'block'
+              }}
+              onError={(e) => {
+                e.currentTarget.style.display = 'none'
+                const placeholderIcon = e.currentTarget.closest('.image-placeholder').querySelector('.placeholder-icon')
+                if (placeholderIcon) placeholderIcon.style.display = 'block'
+              }}
+            />
           </div>
         </motion.div>
       </div>

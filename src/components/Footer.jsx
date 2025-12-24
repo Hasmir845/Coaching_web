@@ -31,7 +31,7 @@ const Footer = () => {
           transition={{ duration: 0.6 }}
         >
           <h3>
-            <FaGraduationCap /> ScienceCare
+            <FaGraduationCap /> GeniusCare
           </h3>
           <p>SSC ও HSC বিজ্ঞান বিভাগের নির্ভরযোগ্য কোচিং</p>
           <div className="social-links">
@@ -86,16 +86,16 @@ const Footer = () => {
         >
           <h4>যোগাযোগ</h4>
           <p>
-            <FaPhone /> 01XXXXXXXXX
+            <FaPhone /> 01763233845 / 01605818260
           </p>
           <p>
-            <FaMapMarkerAlt /> আপনার ঠিকানা
+            <FaMapMarkerAlt /> চন্দ্রা, গাজীপুর
           </p>
         </motion.div>
       </div>
 
       <div className="footer-bottom">
-        <p>&copy; {currentYear} ScienceCare একাডেমিক কোচিং | সকল অধিকার সংরক্ষিত</p>
+        <p>&copy; {currentYear} GeniusCare একাডেমিক কোচিং | সকল অধিকার সংরক্ষিত</p>
       </div>
     </footer>
   )

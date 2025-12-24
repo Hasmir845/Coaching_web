@@ -56,7 +56,7 @@ const Contact = () => {
           </motion.div>
           <h3>ঠিকানা</h3>
           <p>________________________________</p>
-          <p className="contact-note">এখানে আপনার সম্পূর্ণ ঠিকানা লিখুন</p>
+          <p className="contact-note">চন্দ্রা, গাজীপুর</p>
         </motion.div>
 
         <motion.div
@@ -75,10 +75,10 @@ const Contact = () => {
             <FaPhone />
           </motion.div>
           <h3>মোবাইল</h3>
-          <p className="phone-number">01XXXXXXXXX</p>
+          <p className="phone-number">০১৭৬৩২৩৩৮৪৫ / ০১৬০৫৮১৮২৬০</p>
           <div className="contact-buttons">
             <motion.a
-              href="tel:01XXXXXXXXX"
+              href="tel:+8801763233845"
               className="call-button"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -86,12 +86,13 @@ const Contact = () => {
               <FaPhone /> কল করুন
             </motion.a>
             <motion.a
-              href="https://wa.me/01XXXXXXXXX"
+              href="https://wa.me/8801763233845"
               className="whatsapp-button"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="WhatsApp chat"
             >
               <FaWhatsapp /> WhatsApp
             </motion.a>
@@ -163,7 +164,7 @@ const Contact = () => {
       >
         <p>ভর্তি সম্পর্কে আরও জানতে এখনই কল করুন!</p>
         <motion.a
-          href="tel:01XXXXXXXXX"
+          href="tel:+8801763233845"
           className="cta-button-large"
           whileHover={{ scale: 1.05, y: -5 }}
           whileTap={{ scale: 0.95 }}

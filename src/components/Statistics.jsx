@@ -81,10 +81,12 @@ const Statistics = () => {
               <div className="stat-icon">
                 <stat.icon />
               </div>
-              <div className="stat-number">
-                <Counter end={stat.number} suffix={stat.suffix} />
+              <div className="stat-info">
+                <div className="stat-number">
+                  <Counter end={stat.number} suffix={stat.suffix} />
+                </div>
+                <div className="stat-label">{stat.label}</div>
               </div>
-              <div className="stat-label">{stat.label}</div>
             </motion.div>
           ))}
         </motion.div>

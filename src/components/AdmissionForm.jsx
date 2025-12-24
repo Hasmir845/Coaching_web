@@ -31,7 +31,8 @@ const AdmissionForm = () => {
     admissionDate: '',
   })
 
-  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [showToast, setShowToast] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState({})
 
   const handleChange = (e) => {
@@ -94,14 +95,8 @@ const AdmissionForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (validateForm()) {
+      setIsSubmitting(true)
       try {
-        // Disable submit button
-        const submitButton = e.target.querySelector('button[type="submit"]')
-        if (submitButton) {
-          submitButton.disabled = true
-          submitButton.textContent = 'জমা দেওয়া হচ্ছে...'
-        }
-
         // Send data to backend API
         const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
         const response = await fetch(`${API_URL}/api/admission/submit`, {
@@ -115,11 +110,12 @@ const AdmissionForm = () => {
         const result = await response.json()
 
         if (response.ok && result.success) {
-          setIsSubmitted(true)
-          
-          // Reset form after 3 seconds
+          // Show toast confirmation
+          setShowToast(true)
+
+          // Auto-hide toast and reset form after 4 seconds
           setTimeout(() => {
-            setIsSubmitted(false)
+            setShowToast(false)
             setFormData({
               name: '',
               phone: '',
@@ -136,27 +132,16 @@ const AdmissionForm = () => {
               emergencyContact: '',
               admissionDate: '',
             })
-          }, 3000)
+          }, 4000)
         } else {
           // Show error message
           alert(result.message || 'আবেদন জমা দেওয়ার সময় সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।')
-          
-          // Re-enable submit button
-          if (submitButton) {
-            submitButton.disabled = false
-            submitButton.innerHTML = '<FaPaperPlane /> ভর্তি আবেদন জমা দিন'
-          }
         }
       } catch (error) {
         console.error('Form submission error:', error)
         alert('সার্ভারের সাথে সংযোগ করতে সমস্যা হয়েছে। অনুগ্রহ করে পরে আবার চেষ্টা করুন।')
-        
-        // Re-enable submit button
-        const submitButton = e.target.querySelector('button[type="submit"]')
-        if (submitButton) {
-          submitButton.disabled = false
-          submitButton.innerHTML = '<FaPaperPlane /> ভর্তি আবেদন জমা দিন'
-        }
+      } finally {
+        setIsSubmitting(false)
       }
     }
   }
@@ -168,23 +153,7 @@ const AdmissionForm = () => {
     { value: 'biology', label: 'জীববিজ্ঞান' },
   ]
 
-  if (isSubmitted) {
-    return (
-      <section id="admission" className="section admission-section">
-        <motion.div
-          className="success-message-container"
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: 'spring', stiffness: 200 }}
-        >
-          <FaCheckCircle className="success-icon-large" />
-          <h2>আবেদন সফল!</h2>
-          <p>আপনার ভর্তি আবেদন সফলভাবে জমা দেওয়া হয়েছে।</p>
-          <p>আমরা শীঘ্রই আপনার সাথে যোগাযোগ করবো।</p>
-        </motion.div>
-      </section>
-    )
-  }
+
 
   return (
     <section id="admission" className="section admission-section">
@@ -460,13 +429,41 @@ const AdmissionForm = () => {
           className="submit-admission-button"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
+          disabled={isSubmitting}
         >
-          <FaPaperPlane /> ভর্তি আবেদন জমা দিন
+          {isSubmitting ? (
+            'জমা দেওয়া হচ্ছে...'
+          ) : (
+            <>
+              <FaPaperPlane /> ভর্তি আবেদন জমা দিন
+            </>
+          )}
         </motion.button>
 
         <p className="form-note">
           <FaCheckCircle /> আবশ্যক ক্ষেত্রগুলো (*) চিহ্নিত। আবেদন জমা দেওয়ার পর আমরা আপনার সাথে যোগাযোগ করবো।
         </p>
+
+        {showToast && (
+          <motion.div
+            className="toast toast-success"
+            role="status"
+            aria-live="polite"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.4 }}
+          >
+            <div className="toast-content">
+              <FaCheckCircle className="toast-icon" />
+              <div className="toast-text">
+                <h4>আবেদন সফল!</h4>
+                <p>আপনার ভর্তি আবেদন সফলভাবে জমা হয়েছে। আমরা শীঘ্রই আপনার সাথে যোগাযোগ করবো।</p>
+              </div>
+            </div>
+            <button className="toast-close" onClick={() => setShowToast(false)} aria-label="ক্লোজ">✕</button>
+          </motion.div>
+        )}
       </motion.form>
     </section>
   )

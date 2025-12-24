@@ -45,7 +45,7 @@ const Navigation = () => {
           whileTap={{ scale: 0.95 }}
         >
           <FaGraduationCap className="logo-icon" />
-          <span>ScienceCare</span>
+          <span>GeniusCare</span>
         </motion.div>
 
         <ul className={`nav-menu ${isMobileMenuOpen ? 'active' : ''}`}>
