@@ -10,6 +10,7 @@ import {
   FaIdCard,
   FaSchool,
   FaCheckCircle,
+  FaTimesCircle,
   FaPaperPlane,
 } from 'react-icons/fa'
 
@@ -31,7 +32,7 @@ const AdmissionForm = () => {
     admissionDate: '',
   })
 
-  const [showToast, setShowToast] = useState(false)
+  const [modal, setModal] = useState({ open: false, type: '', title: '', message: '' })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState({})
 
@@ -92,6 +93,32 @@ const AdmissionForm = () => {
     return Object.keys(newErrors).length === 0
   }
 
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      phone: '',
+      email: '',
+      address: '',
+      batch: '',
+      class: '',
+      school: '',
+      fatherName: '',
+      fatherPhone: '',
+      motherName: '',
+      previousResult: '',
+      subjectPreference: [],
+      emergencyContact: '',
+      admissionDate: '',
+    })
+  }
+
+  const handleModalClose = (confirmed = false) => {
+    if (confirmed && modal.type === 'success') {
+      resetForm()
+    }
+    setModal({ open: false, type: '', title: '', message: '' })
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (validateForm()) {
@@ -110,36 +137,30 @@ const AdmissionForm = () => {
         const result = await response.json()
 
         if (response.ok && result.success) {
-          // Show toast confirmation
-          setShowToast(true)
-
-          // Auto-hide toast and reset form after 4 seconds
-          setTimeout(() => {
-            setShowToast(false)
-            setFormData({
-              name: '',
-              phone: '',
-              email: '',
-              address: '',
-              batch: '',
-              class: '',
-              school: '',
-              fatherName: '',
-              fatherPhone: '',
-              motherName: '',
-              previousResult: '',
-              subjectPreference: [],
-              emergencyContact: '',
-              admissionDate: '',
-            })
-          }, 4000)
+          // Show success modal (user can close to reset form)
+          setModal({
+            open: true,
+            type: 'success',
+            title: 'আবেদন সফল!',
+            message: result.message || 'আপনার ভর্তি আবেদন সফলভাবে জমা হয়েছে। আমরা শীঘ্রই আপনার সাথে যোগাযোগ করবো।',
+          })
         } else {
-          // Show error message
-          alert(result.message || 'আবেদন জমা দেওয়ার সময় সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।')
+          // Show error modal
+          setModal({
+            open: true,
+            type: 'error',
+            title: 'আবেদন ব্যর্থ',
+            message: result.message || 'আবেদন জমা দেওয়ার সময় সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।',
+          })
         }
       } catch (error) {
         console.error('Form submission error:', error)
-        alert('সার্ভারের সাথে সংযোগ করতে সমস্যা হয়েছে। অনুগ্রহ করে পরে আবার চেষ্টা করুন।')
+        setModal({
+          open: true,
+          type: 'error',
+          title: 'সার্ভার ত্রুটি',
+          message: 'সার্ভারের সাথে সংযোগ করতে সমস্যা হয়েছে। অনুগ্রহ করে পরে আবার চেষ্টা করুন।',
+        })
       } finally {
         setIsSubmitting(false)
       }
@@ -444,24 +465,41 @@ const AdmissionForm = () => {
           <FaCheckCircle /> আবশ্যক ক্ষেত্রগুলো (*) চিহ্নিত। আবেদন জমা দেওয়ার পর আমরা আপনার সাথে যোগাযোগ করবো।
         </p>
 
-        {showToast && (
+        {modal.open && (
           <motion.div
-            className="toast toast-success"
-            role="status"
-            aria-live="polite"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.4 }}
+            className="modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={(e) => { if (e.target === e.currentTarget) handleModalClose(false) }}
           >
-            <div className="toast-content">
-              <FaCheckCircle className="toast-icon" />
-              <div className="toast-text">
-                <h4>আবেদন সফল!</h4>
-                <p>আপনার ভর্তি আবেদন সফলভাবে জমা হয়েছে। আমরা শীঘ্রই আপনার সাথে যোগাযোগ করবো।</p>
+            <motion.div
+              className={`modal ${modal.type === 'success' ? 'modal-success' : 'modal-error'}`}
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', stiffness: 300 }}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="modal-title"
+            >
+              <div className="modal-header">
+                {modal.type === 'success' ? (
+                  <FaCheckCircle className="modal-icon" />
+                ) : (
+                  <FaTimesCircle className="modal-icon" />
+                )}
+                <h3 id="modal-title">{modal.title}</h3>
               </div>
-            </div>
-            <button className="toast-close" onClick={() => setShowToast(false)} aria-label="ক্লোজ">✕</button>
+              <p>{modal.message}</p>
+              <div className="modal-actions">
+                <button className="btn btn-primary" onClick={() => handleModalClose(true)}>
+                  ঠিক আছে
+                </button>
+                <button className="btn btn-secondary" onClick={() => handleModalClose(false)}>
+                  বন্ধ করুন
+                </button>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </motion.form>

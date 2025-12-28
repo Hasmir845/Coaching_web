@@ -3,6 +3,7 @@ import mongoose from 'mongoose'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import admissionRoutes from './routes/admission.js'
+import contactRoutes from './routes/contact.js'
 
 dotenv.config()
 
@@ -27,6 +28,7 @@ mongoose
 
 // Routes
 app.use('/api/admission', admissionRoutes)
+app.use('/api/contact', contactRoutes)
 
 // Health check
 app.get('/api/health', (req, res) => {

@@ -12,11 +12,30 @@ import Contact from './components/Contact'
 import Footer from './components/Footer'
 import ScrollToTop from './components/ScrollToTop'
 import EnrollmentModal from './components/EnrollmentModal'
+import AdminPanel from './components/AdminPanel'
 import './App.css'
 
 function App() {
   const [showModal, setShowModal] = useState(false)
   const [selectedBatch, setSelectedBatch] = useState(null)
+  const [isAdminPage, setIsAdminPage] = useState(false)
+
+  useEffect(() => {
+    // Check if current path is /admin
+    const checkAdminPath = () => {
+      const path = window.location.pathname
+      setIsAdminPage(path === '/admin' || path === '/admin/')
+    }
+
+    checkAdminPath()
+    
+    // Listen for navigation changes
+    window.addEventListener('popstate', checkAdminPath)
+    
+    return () => {
+      window.removeEventListener('popstate', checkAdminPath)
+    }
+  }, [])
 
   const handleEnrollClick = (batchType) => {
     setSelectedBatch(batchType)
@@ -26,6 +45,11 @@ function App() {
   const closeModal = () => {
     setShowModal(false)
     setSelectedBatch(null)
+  }
+
+  // Show Admin Panel if on /admin route
+  if (isAdminPage) {
+    return <AdminPanel />
   }
 
   return (

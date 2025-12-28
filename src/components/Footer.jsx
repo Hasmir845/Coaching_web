@@ -91,6 +91,19 @@ const Footer = () => {
           <p>
             <FaMapMarkerAlt /> চন্দ্রা, গাজীপুর
           </p>
+          <p style={{ marginTop: '10px' }}>
+            <a 
+              href="/admin" 
+              onClick={(e) => {
+                e.preventDefault()
+                window.history.pushState({}, '', '/admin')
+                window.dispatchEvent(new PopStateEvent('popstate'))
+              }}
+              style={{ color: '#fff', textDecoration: 'underline', fontSize: '0.9rem', cursor: 'pointer' }}
+            >
+              Admin Panel
+            </a>
+          </p>
         </motion.div>
       </div>
 

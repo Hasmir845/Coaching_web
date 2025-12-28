@@ -9,16 +9,61 @@ const Contact = () => {
     batch: '',
     message: '',
   })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitStatus, setSubmitStatus] = useState({ type: '', message: '' })
 
-  const handleSubmit = (e) => {
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    // Handle form submission
-    alert('ধন্যবাদ! আমরা শীঘ্রই আপনার সাথে যোগাযোগ করবো।')
-    setFormData({ name: '', phone: '', batch: '', message: '' })
+    setIsSubmitting(true)
+    setSubmitStatus({ type: '', message: '' })
+
+    try {
+      const response = await fetch(`${API_URL}/api/contact/submit`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+
+      const result = await response.json()
+
+      if (response.ok && result.success) {
+        setSubmitStatus({
+          type: 'success',
+          message: result.message || 'ধন্যবাদ! আমরা শীঘ্রই আপনার সাথে যোগাযোগ করবো।',
+        })
+        setFormData({ name: '', phone: '', batch: '', message: '' })
+        
+        // Clear success message after 5 seconds
+        setTimeout(() => {
+          setSubmitStatus({ type: '', message: '' })
+        }, 5000)
+      } else {
+        setSubmitStatus({
+          type: 'error',
+          message: result.message || 'কিছু সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।',
+        })
+      }
+    } catch (error) {
+      console.error('Contact form error:', error)
+      setSubmitStatus({
+        type: 'error',
+        message: 'সার্ভার ত্রুটি। অনুগ্রহ করে পরে আবার চেষ্টা করুন।',
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
+    // Clear status message when user starts typing
+    if (submitStatus.message) {
+      setSubmitStatus({ type: '', message: '' })
+    }
   }
 
   return (
@@ -144,13 +189,23 @@ const Contact = () => {
             onChange={handleChange}
             rows="4"
           />
+          {submitStatus.message && (
+            <div
+              className={`submit-message ${
+                submitStatus.type === 'success' ? 'success' : 'error'
+              }`}
+            >
+              {submitStatus.message}
+            </div>
+          )}
           <motion.button
             type="submit"
             className="submit-button"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            disabled={isSubmitting}
+            whileHover={!isSubmitting ? { scale: 1.05 } : {}}
+            whileTap={!isSubmitting ? { scale: 0.95 } : {}}
           >
-            <FaEnvelope /> পাঠান
+            <FaEnvelope /> {isSubmitting ? 'পাঠানো হচ্ছে...' : 'পাঠান'}
           </motion.button>
         </form>
       </motion.div>

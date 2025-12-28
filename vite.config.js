@@ -17,4 +17,8 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
   },
+  // Handle client-side routing
+  preview: {
+    port: 3000,
+  },
 })
