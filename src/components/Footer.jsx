@@ -33,7 +33,7 @@ const Footer = () => {
           <h3>
             <FaGraduationCap /> GeniusCare
           </h3>
-          <p>SSC ও HSC বিজ্ঞান বিভাগের নির্ভরযোগ্য কোচিং</p>
+          <p>নবম-দশম ও একাদশ-দ্বাদশ শ্রেনীর বিজ্ঞান বিভাগের নির্ভরযোগ্য কোচিং</p>
           <div className="social-links">
             <motion.a
               href="#"
@@ -89,7 +89,7 @@ const Footer = () => {
             <FaPhone /> 01763233845 / 01605818260
           </p>
           <p>
-            <FaMapMarkerAlt /> চন্দ্রা, গাজীপুর
+            <FaMapMarkerAlt />সৃষ্টি ক্যাডেট কলেজের পাশে, কফিল হাউজ, চন্দ্রা, গাজীপুর
           </p>
           <p style={{ marginTop: '10px' }}>
             <a 

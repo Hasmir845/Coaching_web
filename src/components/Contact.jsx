@@ -35,7 +35,7 @@ const Contact = () => {
           type: 'success',
           message: result.message || 'ধন্যবাদ! আমরা শীঘ্রই আপনার সাথে যোগাযোগ করবো।',
         })
-        setFormData({ name: '', phone: '', batch: '', message: '' })
+    setFormData({ name: '', phone: '', batch: '', message: '' })
         
         // Clear success message after 5 seconds
         setTimeout(() => {
@@ -101,7 +101,7 @@ const Contact = () => {
           </motion.div>
           <h3>ঠিকানা</h3>
           <p>________________________________</p>
-          <p className="contact-note">চন্দ্রা, গাজীপুর</p>
+          <p className="contact-note">সৃষ্টি ক্যাডেট কলেজের পাশে, কফিল হাউজ, চন্দ্রা, গাজীপুর</p>
         </motion.div>
 
         <motion.div

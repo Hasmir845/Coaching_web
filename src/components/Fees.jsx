@@ -9,22 +9,22 @@ const Fees = ({ onEnrollClick }) => {
   const feeCards = [
     {
       id: 'ssc',
-      title: 'SSC ব্যাচ',
+      title: 'নবম-দশম ব্যাচ',
       icon: FaGraduationCap,
-      regularFee: 2500,
+      regularFee: 3000,
       discount: 500,
-      finalFee: 2000,
-      badge: 'জনপ্রিয়',
+      finalFee: 2500,
+      badge: 'জনপ্রিয়',
       isPremium: false,
     },
     {
       id: 'hsc',
-      title: 'HSC ব্যাচ',
+      title: 'একাদশ-দ্বাদশ ব্যাচ',
       icon: FaUniversity,
-      regularFee: 3000,
+      regularFee: 3500,
       discount: 500,
-      finalFee: 2500,
-      badge: 'প্রিমিয়াম',
+      finalFee: 3000,
+      badge: 'প্রিমিয়াম',
       isPremium: true,
     },
   ]
@@ -81,7 +81,7 @@ const Fees = ({ onEnrollClick }) => {
             <h3 className="fee-title">{card.title}</h3>
             <div className="fee-details">
               <p className="regular-fee">
-                <span className="fee-label">নিয়মিত ফি:</span>
+                <span className="fee-label">নিয়মিত মাসিক ফি:</span>
                 <span className="strikethrough">{card.regularFee.toLocaleString('bn-BD')} টাকা</span>
               </p>
 
@@ -105,7 +105,7 @@ const Fees = ({ onEnrollClick }) => {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.2 + 0.3 }}
               >
-                <span className="fee-label-small">ভর্তি ফি মাত্র</span>
+                <span className="fee-label-small">মাসিক ফি মাত্র</span>
                 <motion.span
                   className="fee-amount"
                   animate={hoveredCard === card.id ? { scale: [1, 1.1, 1] } : {}}

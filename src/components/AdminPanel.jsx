@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   FaUsers,
   FaCheckCircle,
@@ -14,6 +14,7 @@ import {
   FaComments,
   FaUserCircle,
   FaHome,
+  FaExclamationTriangle,
 } from 'react-icons/fa'
 
 const AdminPanel = () => {
@@ -26,25 +27,166 @@ const AdminPanel = () => {
   const [filter, setFilter] = useState({ batch: '', status: '' })
   const [contactFilter, setContactFilter] = useState({ batch: '', status: '' })
   const [activeTab, setActiveTab] = useState('admissions') // 'admissions' or 'contacts'
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [notification, setNotification] = useState({
+    show: false,
+    type: 'success', // 'success' or 'error'
+    title: '',
+    message: '',
+  })
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
-  // Simple password protection (in production, use proper authentication)
-  const ADMIN_PASSWORD = 'admin123' // Change this!
+  // Get token from localStorage
+  const getToken = () => {
+    return localStorage.getItem('adminToken')
+  }
 
-  const handleLogin = (e) => {
-    e.preventDefault()
-    if (password === ADMIN_PASSWORD) {
-      setIsAuthenticated(true)
-      fetchAdmissions()
-      fetchStats()
-      fetchContacts()
-      fetchContactStats()
-    } else {
-      alert('ভুল পাসওয়ার্ড!')
+  // Set token in localStorage
+  const setToken = (token) => {
+    localStorage.setItem('adminToken', token)
+  }
+
+  // Remove token from localStorage
+  const removeToken = () => {
+    localStorage.removeItem('adminToken')
+  }
+
+  // Check if user is authenticated
+  useEffect(() => {
+    const token = getToken()
+    if (token) {
+      // Verify token with backend
+      verifyToken()
     }
+  }, [])
+
+  const verifyToken = async () => {
+    try {
+      const token = getToken()
+      if (!token) {
+        setIsAuthenticated(false)
+        return
+      }
+
+      const response = await fetch(`${API_URL}/api/auth/verify`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        setIsAuthenticated(true)
+        fetchAdmissions()
+        fetchStats()
+        fetchContacts()
+        fetchContactStats()
+      } else {
+        removeToken()
+        setIsAuthenticated(false)
+      }
+    } catch (error) {
+      console.error('Token verification error:', error)
+      removeToken()
+      setIsAuthenticated(false)
+    }
+  }
+
+  const showNotification = (type, title, message) => {
+    setNotification({ show: true, type, title, message })
+    setTimeout(() => {
+      setNotification({ show: false, type: 'success', title: '', message: '' })
+    }, 3000)
+  }
+
+  const handleLogin = async (e) => {
+    e.preventDefault()
+    setIsLoading(true)
+
+    try {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      })
+
+      // Check if response is ok
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Server error' }))
+        showNotification('error', 'লগইন ব্যর্থ!', errorData.message || `Server error: ${response.status}`)
+        setPassword('')
+        setIsLoading(false)
+        return
+      }
+
+      const result = await response.json()
+
+      if (result.success && result.data && result.data.token) {
+        setToken(result.data.token)
+        setIsAuthenticated(true)
+        showNotification('success', 'লগইন সফল!', 'আপনি সফলভাবে লগইন করেছেন')
+        // Small delay to show success message
+        setTimeout(() => {
+          fetchAdmissions()
+          fetchStats()
+          fetchContacts()
+          fetchContactStats()
+        }, 500)
+        setUsername('')
+        setPassword('')
+      } else {
+        showNotification('error', 'লগইন ব্যর্থ!', result.message || 'ভুল username বা password')
+        setPassword('')
+      }
+    } catch (error) {
+      console.error('Login error:', error)
+      showNotification('error', 'ত্রুটি!', `সার্ভারের সাথে সংযোগ করতে সমস্যা হয়েছে: ${error.message}`)
+      setPassword('')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleLogout = () => {
+    removeToken()
+    setIsAuthenticated(false)
+    setUsername('')
+    setPassword('')
+    showNotification('success', 'লগআউট সফল!', 'আপনি সফলভাবে লগআউট করেছেন')
+  }
+
+  // Add token to all API requests
+  const fetchWithAuth = async (url, options = {}) => {
+    const token = getToken()
+    const headers = {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    }
+
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`
+    }
+
+    const response = await fetch(url, {
+      ...options,
+      headers,
+    })
+
+    // If token expired, logout
+    if (response.status === 401) {
+      removeToken()
+      setIsAuthenticated(false)
+      showNotification('error', 'সেশন শেষ!', 'অনুগ্রহ করে আবার লগইন করুন')
+    }
+
+    return response
   }
 
   const fetchAdmissions = async () => {
@@ -53,7 +195,7 @@ const AdminPanel = () => {
       if (filter.batch) queryParams.append('batch', filter.batch)
       if (filter.status) queryParams.append('status', filter.status)
 
-      const response = await fetch(
+      const response = await fetchWithAuth(
         `${API_URL}/api/admission/all?${queryParams.toString()}`
       )
       const result = await response.json()
@@ -70,7 +212,7 @@ const AdminPanel = () => {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/admission/stats/overview`)
+      const response = await fetchWithAuth(`${API_URL}/api/admission/stats/overview`)
       const result = await response.json()
 
       if (result.success) {
@@ -88,7 +230,7 @@ const AdminPanel = () => {
       if (contactFilter.batch) queryParams.append('batch', contactFilter.batch)
       if (contactFilter.status) queryParams.append('status', contactFilter.status)
 
-      const response = await fetch(
+      const response = await fetchWithAuth(
         `${API_URL}/api/contact/all?${queryParams.toString()}`
       )
       const result = await response.json()
@@ -105,7 +247,7 @@ const AdminPanel = () => {
 
   const fetchContactStats = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/contact/stats/overview`)
+      const response = await fetchWithAuth(`${API_URL}/api/contact/stats/overview`)
       const result = await response.json()
 
       if (result.success) {
@@ -118,11 +260,8 @@ const AdminPanel = () => {
 
   const updateContactStatus = async (id, newStatus) => {
     try {
-      const response = await fetch(`${API_URL}/api/contact/${id}/status`, {
+      const response = await fetchWithAuth(`${API_URL}/api/contact/${id}/status`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({ status: newStatus }),
       })
 
@@ -131,21 +270,20 @@ const AdminPanel = () => {
       if (result.success) {
         fetchContacts()
         fetchContactStats()
-        alert('স্ট্যাটাস আপডেট করা হয়েছে')
+        showNotification('success', 'সফল!', 'স্ট্যাটাস আপডেট করা হয়েছে')
+      } else {
+        showNotification('error', 'ত্রুটি!', result.message || 'স্ট্যাটাস আপডেট করতে সমস্যা হয়েছে')
       }
     } catch (error) {
       console.error('Error updating contact status:', error)
-      alert('স্ট্যাটাস আপডেট করতে সমস্যা হয়েছে')
+      showNotification('error', 'ত্রুটি!', 'স্ট্যাটাস আপডেট করতে সমস্যা হয়েছে')
     }
   }
 
   const updateStatus = async (id, newStatus) => {
     try {
-      const response = await fetch(`${API_URL}/api/admission/${id}/status`, {
+      const response = await fetchWithAuth(`${API_URL}/api/admission/${id}/status`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({ status: newStatus }),
       })
 
@@ -154,11 +292,13 @@ const AdminPanel = () => {
       if (result.success) {
         fetchAdmissions()
         fetchStats()
-        alert('স্ট্যাটাস আপডেট করা হয়েছে')
+        showNotification('success', 'সফল!', 'স্ট্যাটাস আপডেট করা হয়েছে')
+      } else {
+        showNotification('error', 'ত্রুটি!', result.message || 'স্ট্যাটাস আপডেট করতে সমস্যা হয়েছে')
       }
     } catch (error) {
       console.error('Error updating status:', error)
-      alert('স্ট্যাটাস আপডেট করতে সমস্যা হয়েছে')
+      showNotification('error', 'ত্রুটি!', 'স্ট্যাটাস আপডেট করতে সমস্যা হয়েছে')
     }
   }
 
@@ -171,7 +311,7 @@ const AdminPanel = () => {
       }
       const interval = setInterval(() => {
         if (activeTab === 'admissions') {
-          fetchAdmissions()
+      fetchAdmissions()
         } else {
           fetchContacts()
         }
@@ -183,6 +323,45 @@ const AdminPanel = () => {
   if (!isAuthenticated) {
     return (
       <div className="admin-login">
+        {/* Notification Modal for Login Page */}
+        <AnimatePresence>
+          {notification.show && (
+            <motion.div
+              className="notification-modal-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setNotification({ show: false, type: 'success', title: '', message: '' })}
+            >
+              <motion.div
+                className={`notification-modal ${notification.type}`}
+                initial={{ scale: 0.8, opacity: 0, y: 50 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.8, opacity: 0, y: 50 }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="notification-icon">
+                  {notification.type === 'success' ? (
+                    <FaCheckCircle />
+                  ) : (
+                    <FaExclamationTriangle />
+                  )}
+                </div>
+                <h3>{notification.title}</h3>
+                <p>{notification.message}</p>
+                <motion.button
+                  className="notification-close-btn"
+                  onClick={() => setNotification({ show: false, type: 'success', title: '', message: '' })}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  ঠিক আছে
+                </motion.button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <motion.form
           onSubmit={handleLogin}
           initial={{ opacity: 0, scale: 0.9 }}
@@ -191,13 +370,24 @@ const AdminPanel = () => {
         >
           <h2>Admin Login</h2>
           <input
+            type="text"
+            placeholder="Username বা Email"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+            disabled={isLoading}
+          />
+          <input
             type="password"
             placeholder="পাসওয়ার্ড"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            disabled={isLoading}
           />
-          <button type="submit">Login</button>
+          <button type="submit" disabled={isLoading}>
+            {isLoading ? 'লগইন হচ্ছে...' : 'Login'}
+          </button>
         </motion.form>
       </div>
     )
@@ -205,6 +395,45 @@ const AdminPanel = () => {
 
   return (
     <div className="admin-panel">
+      {/* Notification Modal */}
+      <AnimatePresence>
+        {notification.show && (
+          <motion.div
+            className="notification-modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setNotification({ show: false, type: 'success', title: '', message: '' })}
+          >
+            <motion.div
+              className={`notification-modal ${notification.type}`}
+              initial={{ scale: 0.8, opacity: 0, y: 50 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.8, opacity: 0, y: 50 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="notification-icon">
+                {notification.type === 'success' ? (
+                  <FaCheckCircle />
+                ) : (
+                  <FaExclamationTriangle />
+                )}
+              </div>
+              <h3>{notification.title}</h3>
+              <p>{notification.message}</p>
+              <motion.button
+                className="notification-close-btn"
+                onClick={() => setNotification({ show: false, type: 'success', title: '', message: '' })}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                ঠিক আছে
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="admin-header">
         <h1>
           <FaUsers /> Admin Panel
@@ -241,7 +470,7 @@ const AdminPanel = () => {
           >
             <FaHome /> Home
           </a>
-          <button onClick={() => setIsAuthenticated(false)}>Logout</button>
+          <button onClick={handleLogout}>Logout</button>
         </div>
       </div>
 
@@ -263,136 +492,136 @@ const AdminPanel = () => {
 
       {activeTab === 'admissions' ? (
         <>
-          {stats && (
-            <div className="stats-grid">
-              <div className="stat-card">
-                <FaUsers />
-                <h3>মোট আবেদন</h3>
-                <p>{stats.total}</p>
-              </div>
-              <div className="stat-card pending">
-                <FaClock />
-                <h3>Pending</h3>
-                <p>{stats.pending}</p>
-              </div>
-              <div className="stat-card approved">
-                <FaCheckCircle />
-                <h3>Approved</h3>
-                <p>{stats.approved}</p>
-              </div>
-              <div className="stat-card rejected">
-                <FaTimesCircle />
-                <h3>Rejected</h3>
-                <p>{stats.rejected}</p>
-              </div>
-              <div className="stat-card">
-                <FaGraduationCap />
-                <h3>SSC</h3>
-                <p>{stats.byBatch.ssc}</p>
-              </div>
-              <div className="stat-card">
-                <FaGraduationCap />
-                <h3>HSC</h3>
-                <p>{stats.byBatch.hsc}</p>
-              </div>
-            </div>
-          )}
-
-          <div className="filters">
-            <select
-              value={filter.batch}
-              onChange={(e) => setFilter({ ...filter, batch: e.target.value })}
-            >
-              <option value="">সব ব্যাচ</option>
-              <option value="ssc">SSC</option>
-              <option value="hsc">HSC</option>
-            </select>
-            <select
-              value={filter.status}
-              onChange={(e) => setFilter({ ...filter, status: e.target.value })}
-            >
-              <option value="">সব স্ট্যাটাস</option>
-              <option value="pending">Pending</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
-            </select>
+      {stats && (
+        <div className="stats-grid">
+          <div className="stat-card">
+            <FaUsers />
+            <h3>মোট আবেদন</h3>
+            <p>{stats.total}</p>
           </div>
+          <div className="stat-card pending">
+            <FaClock />
+            <h3>Pending</h3>
+            <p>{stats.pending}</p>
+          </div>
+          <div className="stat-card approved">
+            <FaCheckCircle />
+            <h3>Approved</h3>
+            <p>{stats.approved}</p>
+          </div>
+          <div className="stat-card rejected">
+            <FaTimesCircle />
+            <h3>Rejected</h3>
+            <p>{stats.rejected}</p>
+          </div>
+          <div className="stat-card">
+            <FaGraduationCap />
+            <h3>SSC</h3>
+            <p>{stats.byBatch.ssc}</p>
+          </div>
+          <div className="stat-card">
+            <FaGraduationCap />
+            <h3>HSC</h3>
+            <p>{stats.byBatch.hsc}</p>
+          </div>
+        </div>
+      )}
 
-          {loading ? (
+      <div className="filters">
+        <select
+          value={filter.batch}
+          onChange={(e) => setFilter({ ...filter, batch: e.target.value })}
+        >
+          <option value="">সব ব্যাচ</option>
+          <option value="ssc">SSC</option>
+          <option value="hsc">HSC</option>
+        </select>
+        <select
+          value={filter.status}
+          onChange={(e) => setFilter({ ...filter, status: e.target.value })}
+        >
+          <option value="">সব স্ট্যাটাস</option>
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
+
+      {loading ? (
             <div className="loading">লোড হচ্ছে</div>
-          ) : (
-            <div className="admissions-list">
-              {admissions.length === 0 ? (
+      ) : (
+        <div className="admissions-list">
+          {admissions.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '60px 20px' }}>
                   <FaUsers style={{ fontSize: '4rem', color: '#ccc', marginBottom: '20px' }} />
                   <p style={{ fontSize: '1.2rem', color: 'var(--text-light)', margin: 0 }}>
                     কোন আবেদন পাওয়া যায়নি
                   </p>
                 </div>
-              ) : (
-                admissions.map((admission) => (
-                  <motion.div
-                    key={admission._id}
-                    className="admission-card"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                  >
-                    <div className="admission-header">
-                      <div>
-                        <h3>{admission.name}</h3>
-                        <p>
-                          <FaPhone /> {admission.phone}
-                        </p>
-                      </div>
-                      <span className={`status-badge ${admission.status}`}>
-                        {admission.status}
-                      </span>
-                    </div>
-                    <div className="admission-details">
-                      <p>
-                        <FaGraduationCap /> {admission.batch.toUpperCase()} - Class{' '}
-                        {admission.class}
-                      </p>
-                      <p>
-                        <FaSchool /> {admission.school}
-                      </p>
-                      <p>
-                        <strong>পিতার নাম:</strong> {admission.fatherName} (
-                        {admission.fatherPhone})
-                      </p>
-                      {admission.subjectPreference.length > 0 && (
-                        <p>
-                          <strong>বিষয়:</strong>{' '}
-                          {admission.subjectPreference.join(', ')}
-                        </p>
-                      )}
-                      <p>
-                        <strong>তারিখ:</strong>{' '}
-                        {new Date(admission.createdAt).toLocaleDateString('bn-BD')}
-                      </p>
-                    </div>
-                    <div className="admission-actions">
-                      {admission.status === 'pending' && (
-                        <>
-                          <button
-                            onClick={() => updateStatus(admission._id, 'approved')}
-                            className="btn-approve"
-                          >
-                            <FaCheckCircle /> Approve
-                          </button>
-                          <button
-                            onClick={() => updateStatus(admission._id, 'rejected')}
-                            className="btn-reject"
-                          >
-                            <FaTimesCircle /> Reject
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </motion.div>
-                ))
-              )}
-            </div>
+          ) : (
+            admissions.map((admission) => (
+              <motion.div
+                key={admission._id}
+                className="admission-card"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <div className="admission-header">
+                  <div>
+                    <h3>{admission.name}</h3>
+                    <p>
+                      <FaPhone /> {admission.phone}
+                    </p>
+                  </div>
+                  <span className={`status-badge ${admission.status}`}>
+                    {admission.status}
+                  </span>
+                </div>
+                <div className="admission-details">
+                  <p>
+                    <FaGraduationCap /> {admission.batch.toUpperCase()} - Class{' '}
+                    {admission.class}
+                  </p>
+                  <p>
+                    <FaSchool /> {admission.school}
+                  </p>
+                  <p>
+                    <strong>পিতার নাম:</strong> {admission.fatherName} (
+                    {admission.fatherPhone})
+                  </p>
+                  {admission.subjectPreference.length > 0 && (
+                    <p>
+                      <strong>বিষয়:</strong>{' '}
+                      {admission.subjectPreference.join(', ')}
+                    </p>
+                  )}
+                  <p>
+                    <strong>তারিখ:</strong>{' '}
+                    {new Date(admission.createdAt).toLocaleDateString('bn-BD')}
+                  </p>
+                </div>
+                <div className="admission-actions">
+                  {admission.status === 'pending' && (
+                    <>
+                      <button
+                        onClick={() => updateStatus(admission._id, 'approved')}
+                        className="btn-approve"
+                      >
+                        <FaCheckCircle /> Approve
+                      </button>
+                      <button
+                        onClick={() => updateStatus(admission._id, 'rejected')}
+                        className="btn-reject"
+                      >
+                        <FaTimesCircle /> Reject
+                      </button>
+                    </>
+                  )}
+                </div>
+              </motion.div>
+            ))
+          )}
+        </div>
           )}
         </>
       ) : (

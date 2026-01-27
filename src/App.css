@@ -588,6 +588,146 @@
     }
 }
 
+/* Notification Modal */
+.notification-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 20px;
+}
+
+.notification-modal {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 450px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.notification-modal::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, var(--primary-blue), var(--accent-orange));
+}
+
+.notification-modal.success::before {
+    background: linear-gradient(90deg, var(--success-green), #66bb6a);
+}
+
+.notification-modal.error::before {
+    background: linear-gradient(90deg, #f44336, #d32f2f);
+}
+
+.notification-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    animation: scaleIn 0.5s ease;
+}
+
+.notification-modal.success .notification-icon {
+    background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+    color: var(--success-green);
+    box-shadow: 0 10px 30px rgba(76, 175, 80, 0.3);
+}
+
+.notification-modal.error .notification-icon {
+    background: linear-gradient(135deg, #ffebee, #ffcdd2);
+    color: #f44336;
+    box-shadow: 0 10px 30px rgba(244, 67, 54, 0.3);
+}
+
+.notification-modal h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: var(--text-dark);
+}
+
+.notification-modal.success h3 {
+    color: var(--success-green);
+}
+
+.notification-modal.error h3 {
+    color: #f44336;
+}
+
+.notification-modal p {
+    font-size: 1.1rem;
+    color: var(--text-light);
+    margin-bottom: 25px;
+    line-height: 1.6;
+}
+
+.notification-close-btn {
+    padding: 12px 30px;
+    background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(25, 118, 210, 0.3);
+    width: 100%;
+}
+
+.notification-close-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(25, 118, 210, 0.4);
+}
+
+.notification-modal.success .notification-close-btn {
+    background: linear-gradient(135deg, var(--success-green), #388e3c);
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
+.notification-modal.success .notification-close-btn:hover {
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+.notification-modal.error .notification-close-btn {
+    background: linear-gradient(135deg, #f44336, #d32f2f);
+    box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+}
+
+.notification-modal.error .notification-close-btn:hover {
+    box-shadow: 0 6px 20px rgba(244, 67, 54, 0.4);
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
 @media (max-width: 480px) {
     .login-form {
         padding: 30px 20px;
@@ -604,6 +744,25 @@
 
     .stat-card svg {
         font-size: 2.5rem;
+    }
+
+    .notification-modal {
+        padding: 30px 20px;
+        margin: 20px;
+    }
+
+    .notification-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 2rem;
+    }
+
+    .notification-modal h3 {
+        font-size: 1.3rem;
+    }
+
+    .notification-modal p {
+        font-size: 1rem;
     }
 }
 

@@ -56,12 +56,12 @@ function App() {
     <div className="App">
       <Navigation />
       <Header onEnrollClick={() => handleEnrollClick(null)} />
-      <Statistics />
+      {/* <Statistics /> */}
       <Subjects />
       <Features />
       <Fees onEnrollClick={handleEnrollClick} />
       <BatchInfo />
-      <Testimonials />
+      {/* <Testimonials /> */}
       <AdmissionForm />
       <Contact />
       <Footer />

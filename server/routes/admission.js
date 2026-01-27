@@ -1,10 +1,12 @@
 import express from 'express'
 import Admission from '../models/Admission.js'
+import { authenticate } from '../middleware/auth.js'
+import { formLimiter, validateInput } from '../middleware/security.js'
 
 const router = express.Router()
 
-// Submit admission form
-router.post('/submit', async (req, res) => {
+// Submit admission form (public, but rate limited)
+router.post('/submit', formLimiter, validateInput, async (req, res) => {
   try {
     const admissionData = req.body
 
@@ -45,8 +47,8 @@ router.post('/submit', async (req, res) => {
   }
 })
 
-// Get all admissions (for admin)
-router.get('/all', async (req, res) => {
+// Get all admissions (protected - admin only)
+router.get('/all', authenticate, async (req, res) => {
   try {
     const { batch, status, page = 1, limit = 10 } = req.query
 
@@ -82,8 +84,8 @@ router.get('/all', async (req, res) => {
   }
 })
 
-// Get single admission by ID
-router.get('/:id', async (req, res) => {
+// Get single admission by ID (protected - admin only)
+router.get('/:id', authenticate, async (req, res) => {
   try {
     const admission = await Admission.findById(req.params.id).select('-__v')
 
@@ -108,8 +110,8 @@ router.get('/:id', async (req, res) => {
   }
 })
 
-// Update admission status (for admin)
-router.patch('/:id/status', async (req, res) => {
+// Update admission status (protected - admin only)
+router.patch('/:id/status', authenticate, validateInput, async (req, res) => {
   try {
     const { status } = req.body
 
@@ -148,8 +150,8 @@ router.patch('/:id/status', async (req, res) => {
   }
 })
 
-// Get statistics
-router.get('/stats/overview', async (req, res) => {
+// Get statistics (protected - admin only)
+router.get('/stats/overview', authenticate, async (req, res) => {
   try {
     const total = await Admission.countDocuments()
     const pending = await Admission.countDocuments({ status: 'pending' })

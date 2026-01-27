@@ -61,7 +61,7 @@ const Header = ({ onEnrollClick }) => {
             GeniusCare একাডেমিক কোচিং
           </motion.h1>
           <motion.p className="subtitle" variants={itemVariants}>
-            SSC ও HSC বিজ্ঞান বিভাগের নির্ভরযোগ্য কোচিং
+            নবম-দশম ও একাদশ-দ্বাদশ শ্রেনীর বিজ্ঞান বিভাগের নির্ভরযোগ্য কোচিং
           </motion.p>
 
           <motion.div className="header-badges" variants={itemVariants}>

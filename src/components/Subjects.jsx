@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FaFlask, FaMicroscope, FaAtom, FaVial, FaCalculator, FaDna, FaGraduationCap, FaUniversity, FaCheckCircle } from 'react-icons/fa'
+import { FaFlask, FaMicroscope, FaAtom, FaVial, FaCalculator, FaDna, FaGraduationCap, FaUniversity, FaCheckCircle, FaBook } from 'react-icons/fa'
 
 const Subjects = () => {
   const [hoveredCard, setHoveredCard] = useState(null)
@@ -8,7 +8,7 @@ const Subjects = () => {
   const subjects = [
     {
       id: 'ssc',
-      title: 'SSC (বিজ্ঞান)',
+      title: 'নবম-দশম (বিজ্ঞান)',
       icon: FaFlask,
       headerIcon: FaGraduationCap,
       subjects: [
@@ -16,12 +16,13 @@ const Subjects = () => {
         { icon: FaVial, name: 'রসায়ন' },
         { icon: FaCalculator, name: 'গণিত' },
         { icon: FaDna, name: 'জীববিজ্ঞান' },
+        { icon: FaBook, name: 'ইংরেজী' },
       ],
       highlight: 'সম্পূর্ণ সিলেবাস কভার',
     },
     {
       id: 'hsc',
-      title: 'HSC (বিজ্ঞান)',
+      title: 'একাদশ-দ্বাদশ (বিজ্ঞান)',
       icon: FaMicroscope,
       headerIcon: FaUniversity,
       subjects: [
@@ -29,8 +30,9 @@ const Subjects = () => {
         { icon: FaVial, name: 'রসায়ন' },
         { icon: FaCalculator, name: 'গণিত' },
         { icon: FaDna, name: 'জীববিজ্ঞান' },
+        { icon: FaBook, name: 'ইংরেজী' },
       ],
-      highlight: 'উচ্চতর কনসেপ্ট ক্লিয়ার',
+      highlight: 'উচ্চতর কনসেপ্ট ক্লিয়ার',
     },
   ]
 
@@ -47,7 +49,7 @@ const Subjects = () => {
           <FaFlask /> বিষয়সমূহ
         </motion.h2>
         <p className="section-subtitle">
-          আমরা SSC ও HSC বিজ্ঞান বিভাগের সকল বিষয়ে কোচিং প্রদান করি
+          আমরা নবম-দশম ও একাদশ-দ্বাদশ শ্রেনীর বিজ্ঞান বিভাগের সকল বিষয়ে কোচিং প্রদান করি
         </p>
       </div>
 

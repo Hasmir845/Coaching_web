@@ -1,10 +1,12 @@
 import express from 'express'
 import Contact from '../models/Contact.js'
+import { authenticate } from '../middleware/auth.js'
+import { formLimiter, validateInput } from '../middleware/security.js'
 
 const router = express.Router()
 
-// Submit contact form
-router.post('/submit', async (req, res) => {
+// Submit contact form (public, but rate limited)
+router.post('/submit', formLimiter, validateInput, async (req, res) => {
   try {
     const contactData = req.body
 
@@ -49,8 +51,8 @@ router.post('/submit', async (req, res) => {
   }
 })
 
-// Get all contacts (for admin)
-router.get('/all', async (req, res) => {
+// Get all contacts (protected - admin only)
+router.get('/all', authenticate, async (req, res) => {
   try {
     const { batch, status, page = 1, limit = 50 } = req.query
 
@@ -86,8 +88,8 @@ router.get('/all', async (req, res) => {
   }
 })
 
-// Get single contact by ID
-router.get('/:id', async (req, res) => {
+// Get single contact by ID (protected - admin only)
+router.get('/:id', authenticate, async (req, res) => {
   try {
     const contact = await Contact.findById(req.params.id).select('-__v')
 
@@ -112,8 +114,8 @@ router.get('/:id', async (req, res) => {
   }
 })
 
-// Update contact status (for admin)
-router.patch('/:id/status', async (req, res) => {
+// Update contact status (protected - admin only)
+router.patch('/:id/status', authenticate, validateInput, async (req, res) => {
   try {
     const { status } = req.body
 
@@ -152,8 +154,8 @@ router.patch('/:id/status', async (req, res) => {
   }
 })
 
-// Get contact statistics
-router.get('/stats/overview', async (req, res) => {
+// Get contact statistics (protected - admin only)
+router.get('/stats/overview', authenticate, async (req, res) => {
   try {
     const total = await Contact.countDocuments()
     const newContacts = await Contact.countDocuments({ status: 'new' })

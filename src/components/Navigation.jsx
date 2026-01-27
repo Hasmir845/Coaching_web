@@ -17,7 +17,7 @@ const Navigation = () => {
   const navItems = [
     { id: 'subjects', label: 'বিষয়সমূহ' },
     { id: 'features', label: 'কেন আমরা' },
-    { id: 'fees', label: 'ভর্তি ফি' },
+    { id: 'fees', label: 'মাসিক ফি' },
     { id: 'admission', label: 'ভর্তি হোন', highlight: true },
     { id: 'contact', label: 'যোগাযোগ' },
   ]
