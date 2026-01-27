@@ -14,7 +14,7 @@ const createAdmin = async () => {
     const existingAdmin = await Admin.findOne({
       $or: [
         { username: 'admin' },
-        { email: 'admin@sciencecare.com' }
+        { email: 'admin@geniuscare.com' }
       ]
     })
 
@@ -26,7 +26,7 @@ const createAdmin = async () => {
     // Create default admin
     const admin = await Admin.create({
       username: 'admin',
-      email: 'admin@sciencecare.com',
+      email: 'admin@geniuscare.com',
       password: process.env.ADMIN_PASSWORD || 'admin123', // Change this!
       role: 'superadmin',
       isActive: true,
@@ -34,7 +34,7 @@ const createAdmin = async () => {
 
     console.log('✅ Admin user created successfully!')
     console.log('📧 Username: admin')
-    console.log('📧 Email: admin@sciencecare.com')
+    console.log('📧 Email: admin@geniuscare.com')
     console.log('🔑 Password: ' + (process.env.ADMIN_PASSWORD || 'admin123'))
     console.log('⚠️  Please change the password after first login!')
     

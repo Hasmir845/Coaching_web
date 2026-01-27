@@ -282,8 +282,8 @@ const AdmissionForm = () => {
                 className={errors.batch ? 'error' : ''}
               >
                 <option value="">ব্যাচ নির্বাচন করুন</option>
-                <option value="ssc">SSC ব্যাচ - ২০০০ টাকা</option>
-                <option value="hsc">HSC ব্যাচ - ২৫০০ টাকা</option>
+                <option value="ssc">নবম-দশম ব্যাচ - ২৫০০ টাকা</option>
+                <option value="hsc">একাদশ-দ্বাদশ ব্যাচ - ৩০০০ টাকা</option>
               </select>
               {errors.batch && <span className="error-message">{errors.batch}</span>}
             </div>
@@ -336,7 +336,7 @@ const AdmissionForm = () => {
             </div>
           </div>
 
-          <div className="form-group full-width">
+          {/* <div className="form-group full-width">
             <label>
               <FaGraduationCap /> পছন্দের বিষয়সমূহ (একাধিক নির্বাচন করুন)
             </label>
@@ -353,7 +353,7 @@ const AdmissionForm = () => {
                 </label>
               ))}
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Parent/Guardian Information */}

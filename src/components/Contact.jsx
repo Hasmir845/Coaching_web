@@ -179,8 +179,8 @@ const Contact = () => {
             required
           >
             <option value="">ব্যাচ নির্বাচন করুন</option>
-            <option value="ssc">SSC ব্যাচ</option>
-            <option value="hsc">HSC ব্যাচ</option>
+            <option value="ssc">নবম-দশম ব্যাচ</option>
+            <option value="hsc">একাদশ-দ্বাদশ ব্যাচ</option>
           </select>
           <textarea
             name="message"
