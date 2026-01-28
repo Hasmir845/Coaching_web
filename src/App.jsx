@@ -31,9 +31,21 @@ function App() {
     
     // Listen for navigation changes
     window.addEventListener('popstate', checkAdminPath)
+
+    // Add keyboard shortcut to access admin panel (Ctrl+Shift+A)
+    const handleKeyPress = (e) => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+        e.preventDefault()
+        window.history.pushState({}, '', '/admin')
+        window.dispatchEvent(new PopStateEvent('popstate'))
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyPress)
     
     return () => {
       window.removeEventListener('popstate', checkAdminPath)
+      window.removeEventListener('keydown', handleKeyPress)
     }
   }, [])
 

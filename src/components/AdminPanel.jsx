@@ -16,6 +16,7 @@ import {
   FaHome,
   FaExclamationTriangle,
 } from 'react-icons/fa'
+import AdminLogin from './AdminLogin'
 
 const AdminPanel = () => {
   const [admissions, setAdmissions] = useState([])
@@ -322,74 +323,12 @@ const AdminPanel = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="admin-login">
-        {/* Notification Modal for Login Page */}
-        <AnimatePresence>
-          {notification.show && (
-            <motion.div
-              className="notification-modal-overlay"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setNotification({ show: false, type: 'success', title: '', message: '' })}
-            >
-              <motion.div
-                className={`notification-modal ${notification.type}`}
-                initial={{ scale: 0.8, opacity: 0, y: 50 }}
-                animate={{ scale: 1, opacity: 1, y: 0 }}
-                exit={{ scale: 0.8, opacity: 0, y: 50 }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="notification-icon">
-                  {notification.type === 'success' ? (
-                    <FaCheckCircle />
-                  ) : (
-                    <FaExclamationTriangle />
-                  )}
-                </div>
-                <h3>{notification.title}</h3>
-                <p>{notification.message}</p>
-                <motion.button
-                  className="notification-close-btn"
-                  onClick={() => setNotification({ show: false, type: 'success', title: '', message: '' })}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  ঠিক আছে
-                </motion.button>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <motion.form
-          onSubmit={handleLogin}
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="login-form"
-        >
-          <h2>Admin Login</h2>
-          <input
-            type="text"
-            placeholder="Username বা Email"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-            disabled={isLoading}
-          />
-          <input
-            type="password"
-            placeholder="পাসওয়ার্ড"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            disabled={isLoading}
-          />
-          <button type="submit" disabled={isLoading}>
-            {isLoading ? 'লগইন হচ্ছে...' : 'Login'}
-          </button>
-        </motion.form>
-      </div>
+      <AdminLogin 
+        onLoginSuccess={() => {
+          setIsAuthenticated(true)
+          verifyToken()
+        }}
+      />
     )
   }
 

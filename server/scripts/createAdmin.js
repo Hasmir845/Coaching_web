@@ -13,29 +13,28 @@ const createAdmin = async () => {
     // Check if admin already exists
     const existingAdmin = await Admin.findOne({
       $or: [
-        { username: 'admin' },
-        { email: 'admin@geniuscare.com' }
+        { email: 'geniuscare@gmail.com' }
       ]
     })
 
     if (existingAdmin) {
-      console.log('⚠️  Admin user already exists')
+      console.log('⚠️  Admin user already exists with email: geniuscare@gmail.com')
       process.exit(0)
     }
 
-    // Create default admin
+    // Create default admin with geniuscare@gmail.com
     const admin = await Admin.create({
-      username: 'admin',
-      email: 'admin@geniuscare.com',
-      password: process.env.ADMIN_PASSWORD || 'admin123', // Change this!
+      username: 'geniuscare',
+      email: 'geniuscare@gmail.com',
+      password: process.env.ADMIN_PASSWORD || 'GeniusCare@2024', // Change this!
       role: 'superadmin',
       isActive: true,
     })
 
     console.log('✅ Admin user created successfully!')
-    console.log('📧 Username: admin')
-    console.log('📧 Email: admin@geniuscare.com')
-    console.log('🔑 Password: ' + (process.env.ADMIN_PASSWORD || 'admin123'))
+    console.log('📧 Username: geniuscare')
+    console.log('📧 Email: geniuscare@gmail.com')
+    console.log('🔑 Password: ' + (process.env.ADMIN_PASSWORD || 'GeniusCare@2024'))
     console.log('⚠️  Please change the password after first login!')
     
     process.exit(0)

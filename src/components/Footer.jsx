@@ -10,9 +10,15 @@ const Footer = () => {
     { id: 'features', label: 'কেন আমরা' },
     { id: 'fees', label: 'ভর্তি ফি' },
     { id: 'contact', label: 'যোগাযোগ' },
+    { id: 'admin', label: 'Admin', isAdmin: true },
   ]
 
   const scrollToSection = (id) => {
+    if (id === 'admin') {
+      window.history.pushState({}, '', '/admin')
+      window.dispatchEvent(new PopStateEvent('popstate'))
+      return
+    }
     const element = document.getElementById(id)
     if (element) {
       const offsetTop = element.offsetTop - 80
@@ -69,6 +75,7 @@ const Footer = () => {
                     e.preventDefault()
                     scrollToSection(link.id)
                   }}
+                  style={link.isAdmin ? { color: '#1976d2', fontWeight: '600' } : {}}
                 >
                   {link.label}
                 </a>
@@ -90,19 +97,6 @@ const Footer = () => {
           </p>
           <p>
             <FaMapMarkerAlt />সৃষ্টি ক্যাডেট কলেজের পাশে, কফিল হাউজ, চন্দ্রা, গাজীপুর
-          </p>
-          <p style={{ marginTop: '10px' }}>
-            <a 
-              href="/admin" 
-              onClick={(e) => {
-                e.preventDefault()
-                window.history.pushState({}, '', '/admin')
-                window.dispatchEvent(new PopStateEvent('popstate'))
-              }}
-              style={{ color: '#fff', textDecoration: 'underline', fontSize: '0.9rem', cursor: 'pointer' }}
-            >
-              Admin Panel
-            </a>
           </p>
         </motion.div>
       </div>
